@@ -1,6 +1,5 @@
-# network
-
-
+package networkshw2;
+import java.awt.geom.Area;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -26,7 +25,7 @@ public class NewJFrame extends javax.swing.JFrame {
     static String remotePort;
     boolean f;
     static DatagramSocket mysocket;
-    
+    thread comm;
     public NewJFrame() {
         initComponents();
     }
@@ -373,6 +372,7 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         else{
             try{
+                JOptionPane.showMessageDialog(null, "ok");
                 f=true;
                 localIP=localIp.getText();
                 localPortt=localPort.getText();
@@ -383,6 +383,8 @@ public class NewJFrame extends javax.swing.JFrame {
                 lPort=Integer.parseInt(localPortt);
 
                 DatagramSocket peer =new DatagramSocket(lPort);
+                comm =new thread(peer);
+                comm.start();
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -422,12 +424,38 @@ public class NewJFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new NewJFrame().setVisible(true);
+                
             }
         });
+        
+        try{
+            int local_port=Integer.parseInt(localPortt);
+            DatagramSocket ss=new DatagramSocket(local_port);
+            while(true){
+                byte[] r1=new byte[2048];
+                byte[] r2=new byte[2048];
+                String s;
+                String s2;
+                
+                DatagramPacket p1=new DatagramPacket(r1, r1.length);
+                ss.receive(p1);
+                s=new String(p1.getData());
+                Area1.append(s);
+                
+                DatagramPacket p2=new DatagramPacket(r2, r2.length);
+                s2=new String(p2.getData());
+                Area1.append(s2);
+                ss.close();
+                
+            }
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     // Variables declaration - do not modify                     
-    private javax.swing.JTextArea Area1;
+    private static javax.swing.JTextArea Area1;
     private javax.swing.JTextField Status;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
@@ -459,9 +487,9 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JTextField userText;
     // End of variables declaration                   
 
-private class thred extends Thread{
+private class thread extends Thread{
     
-    public thred(DatagramSocket s){
+    public thread(DatagramSocket s){
         mysocket =s;
         
     }
